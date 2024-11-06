@@ -1,0 +1,161 @@
+----------------------------
+--This tables have 1:M relationships
+--------------------------------
+CREATE TABLE Version (
+    Version_ID INT PRIMARY KEY,
+    Description VARCHAR(255)
+);
+CREATE TABLE Studio (
+    Studio_Name VARCHAR(255),
+    Studio_ID INT PRIMARY KEY
+);
+
+CREATE TABLE Country (
+    Country_ID INT PRIMARY KEY,
+    Country_Name VARCHAR(255)
+);
+
+
+CREATE TABLE Languages (
+    Language_ID INT PRIMARY KEY,
+    Movie_Language VARCHAR (200)
+);
+
+CREATE TABLE Genre (
+    Genre_ID INT PRIMARY KEY,
+    Genre_Name VARCHAR(255)
+);
+
+CREATE TABLE Director (
+    Director_ID INT PRIMARY KEY,
+    Fist_Name VARCHAR(255),
+    Last_Name VARCHAR(255)
+);
+
+-------------------------------
+---these tables have M:N relationships
+-------------------------------
+
+CREATE TABLE Awards (
+    Award_ID INT PRIMARY KEY,
+    Award_Name VARCHAR(255)
+);
+
+CREATE TABLE Actor_Catalogue (
+    First_Name VARCHAR(255),
+    Last_Name VARCHAR(255),
+    Actor_ID INT PRIMARY KEY
+    
+);
+
+-----------------------------
+--Distributor
+CREATE TABLE Dist (
+    Dist_ID INT PRIMARY KEY,
+    Phone VARCHAR(20),
+    Business_Name VARCHAR(255),
+    Date_Of_Business DATE
+);
+
+-- Create Customer table
+CREATE TABLE Customer (
+    Customer_ID INT PRIMARY KEY,
+    CusOrderID INT,
+    Name VARCHAR(255),
+    Address VARCHAR(255),
+    TelephoneNumber VARCHAR(20)
+);
+
+
+CREATE TABLE Movie (
+    Movie_ID INT PRIMARY KEY,
+    Title VARCHAR(255),
+    Studio_ID INT,
+    Country_ID INT,
+    Rating VARCHAR(10),
+    Language_ID INT,
+    Genre_ID INT,
+    Director_ID INT,
+    Running_Length INT,
+    FOREIGN KEY (Studio_ID) REFERENCES Studio(Studio_ID),
+    FOREIGN KEY (Country_ID) REFERENCES Country(Country_ID),
+    FOREIGN KEY (Director_ID) REFERENCES Director(Director_ID)
+    
+);
+-- Create Inventory table
+CREATE TABLE Inventory (
+    Movie_ID INT,
+    Version_ID INT,
+    Dist_ID INT,
+    PRIMARY KEY (movie_id, version_id, dist_id),
+    Cost DECIMAL(10, 2),
+    Quantities INT,
+    FOREIGN KEY (Dist_ID) REFERENCES Dist(Dist_ID),
+    FOREIGN KEY (movie_id) REFERENCES movie(movie_id),
+    FOREIGN KEY (version_id) REFERENCES version(version_id)
+);
+
+CREATE TABLE Catalog (
+    Dist_ID INT,
+    Movie_ID INT,
+    Version_ID INT,
+    Format VARCHAR(50),
+    Price DECIMAL(10, 2),
+    Availability BOOLEAN,
+    Genre_ID INT,
+    PRIMARY KEY(dist_id, movie_id, version_id),
+    FOREIGN KEY (dist_id, movie_id, version_id) REFERENCES inventory(dist_id, movie_id, version_id)
+);
+CREATE TABLE bridge_genre(
+    movie_id INT,
+    genre_id INT,
+    PRIMARY KEY(movie_id, genre_id),
+    FOREIGN KEY (Movie_id) REFERENCES Movie(Movie_ID),
+    FOREIGN KEY (Genre_ID) REFERENCES Genre(Genre_id)
+);
+CREATE TABLE bridge_language(
+    movie_id INT,
+    language_id INT,
+    PRIMARY KEY(movie_id, language_id),
+    FOREIGN KEY (Movie_id) REFERENCES Movie(Movie_ID),
+    FOREIGN KEY (Language_ID) REFERENCES Languages(Language_id)
+);
+CREATE TABLE Bridge_Awards(
+    award_id INT,
+    movie_id INT,
+    PRIMARY KEY (award_id, movie_id),
+    FOREIGN KEY (award_id) REFERENCES awards(award_id),
+    FOREIGN KEY (movie_id) REFERENCES movie(movie_id)
+);
+
+CREATE TABLE Actors (
+    Movie_ID INT,
+    Actor_ID INT, 
+    PRIMARY KEY (movie_id, actor_id),
+    FOREIGN KEY (actor_id) REFERENCES actor_catalogue(actor_id),
+    FOREIGN KEY (movie_id) REFERENCES movie(movie_id)
+);
+-- Create Sales table
+CREATE TABLE Sales (
+    Order_ID INT PRIMARY KEY,
+    Date_Rented DATE,
+    Date_Returned DATE,
+    Customer_ID INT,
+    FOREIGN KEY (Customer_ID) REFERENCES Customer(Customer_ID)
+);
+--Create Order Table
+CREATE TABLE Orders (
+    order_id INT, 
+    dist_id INT,
+    movie_id INT,
+    Version_id INT,
+    Failure_to_Rewind VARCHAR(3),
+    Discounted_Percentage FLOAT,
+    Damage_Fee DECIMAL(10, 2),
+    PRIMARY KEY(order_id, dist_id, movie_id, version_id),
+    FOREIGN KEY (order_id) REFERENCES sales(order_id),
+    FOREIGN KEY (movie_id) REFERENCES movie(movie_id),
+    FOREIGN KEY (dist_id) REFERENCES dist(dist_id),
+    FOREIGN KEY (version_id) REFERENCES version(version_id)	
+);
+   
